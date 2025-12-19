@@ -64,6 +64,7 @@ external_components:
 
 climate:
   - platform: sinclair_ac
+    current_temperature_sensor: ext_room_temp
     name: ${devicename}
     horizontal_swing_select:
       name: ${devicename} Horizontal Swing Mode
