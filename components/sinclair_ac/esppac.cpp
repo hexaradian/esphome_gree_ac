@@ -258,7 +258,7 @@ void SinclairAC::set_current_temperature_sensor(sensor::Sensor *current_temperat
 
     // If the sensor already has a valid value, use it immediately
     float s = this->current_temperature_sensor_->state;
-    ESP_LOGW(TAG, "Current temperature value: %f", s);
+    ESP_LOGD(TAG, "External sensor initial state: %f (current internal: %f)", s, this->current_temperature);
     if (!std::isnan(s)) {
         this->update_current_temperature(s);
         this->publish_state();
@@ -266,6 +266,7 @@ void SinclairAC::set_current_temperature_sensor(sensor::Sensor *current_temperat
 
     // Update the climate when the external sensor state changes
     this->current_temperature_sensor_->add_on_state_callback([this](float state) {
+        ESP_LOGD(TAG, "External sensor update: %f (previous internal: %f)", state, this->current_temperature);
         this->update_current_temperature(state);
         this->publish_state();
     });
