@@ -40,8 +40,6 @@ void SinclairAC::setup()
     this->last_packet_sent_ = millis();
 
         ESP_LOGI(TAG, "Sinclair AC component v%s starting...", VERSION);
-        // Log whether an external current temperature sensor has been attached by the generated code
-        ESP_LOGI(TAG, "current_temperature_sensor %s", this->current_temperature_sensor_ != nullptr ? "attached" : "null");
 }
 
 void SinclairAC::loop()
@@ -254,14 +252,12 @@ climate::ClimateAction SinclairAC::determine_action()
 
 void SinclairAC::set_current_temperature_sensor(sensor::Sensor *current_temperature_sensor)
 {
-    ESP_LOGI(TAG, "set_current_temperature_sensor called");
     this->current_temperature_sensor_ = current_temperature_sensor;
     if (this->current_temperature_sensor_ == nullptr)
         return;
 
     // If the sensor already has a valid value, use it immediately
     float s = this->current_temperature_sensor_->state;
-    ESP_LOGI(TAG, "External sensor attached. initial state: %f (current internal: %f)", s, this->current_temperature);
     if (!std::isnan(s)) {
         this->update_current_temperature(s);
         this->publish_state();
@@ -269,7 +265,6 @@ void SinclairAC::set_current_temperature_sensor(sensor::Sensor *current_temperat
 
     // Update the climate when the external sensor state changes
     this->current_temperature_sensor_->add_on_state_callback([this](float state) {
-        ESP_LOGI(TAG, "External sensor update: %f (previous internal: %f)", state, this->current_temperature);
         this->update_current_temperature(state);
         this->publish_state();
     });
