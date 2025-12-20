@@ -830,7 +830,7 @@ const char* SinclairACCNT::determine_fan_mode()
     /* fan setting has quite complex representation in the packet, brace for it */
    // uint8_t fanSpeed1 = (this->serialProcess_.data[protocol::REPORT_FAN_SPD1_BYTE]  & protocol::REPORT_FAN_SPD1_MASK) >> protocol::REPORT_FAN_SPD1_POS;
     //uint8_t fanSpeed2 = (this->serialProcess_.data[protocol::REPORT_FAN_SPD2_BYTE]  & protocol::REPORT_FAN_SPD2_MASK) >> protocol::REPORT_FAN_SPD2_POS;
-    //bool    fanQuiet  = (this->serialProcess_.data[protocol::REPORT_FAN_QUIET_BYTE] & protocol::REPORT_FAN_QUIET_MASK) != 0;
+    bool    fanQuiet  = (this->serialProcess_.data[protocol::REPORT_FAN_QUIET_BYTE] & protocol::REPORT_FAN_QUIET_MASK) != 0;
     
     bool    fanTurbo  = (this->serialProcess_.data[protocol::REPORT_FAN_TURBO_BYTE] & protocol::REPORT_FAN_TURBO_MASK) != 0;
     uint8_t fan_mode = (this->serialProcess_.data[protocol::REPORT_FAN_SPD2_BYTE] & protocol::REPORT_FAN_MODE_MASK);
@@ -845,7 +845,7 @@ const char* SinclairACCNT::determine_fan_mode()
         return fan_modes::FAN_MED;
     else if (fan_mode == 3)
         return fan_modes::FAN_HIGH;
-    else if (fanQuiet == true)
+    else if (fanQuiet)
         return fan_modes::FAN_QUIET;
     else 
     {
