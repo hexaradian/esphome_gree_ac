@@ -326,16 +326,16 @@ void SinclairACCNT::send_packet()
         }
         else
         {
-            // Default to Quiet
-            fanSpeed1 = 1;
-            fanSpeed2 = 1;
+            // Default to Auto
+            fanSpeed1 = 0;
+            fanSpeed2 = 0;
             fanQuiet  = false;
             fanTurbo  = false;
         }
     }
 
-    // packet[protocol::REPORT_FAN_SPD1_BYTE] |= (fanSpeed1 << protocol::REPORT_FAN_SPD1_POS);
-    // packet[protocol::REPORT_FAN_SPD2_BYTE] |= (fanSpeed2 << protocol::REPORT_FAN_SPD2_POS);
+    packet[protocol::REPORT_FAN_SPD1_BYTE] |= (fanSpeed1 << protocol::REPORT_FAN_SPD1_POS);
+    packet[protocol::REPORT_FAN_SPD2_BYTE] |= (fanSpeed2 << protocol::REPORT_FAN_SPD2_POS);
     
    
     
