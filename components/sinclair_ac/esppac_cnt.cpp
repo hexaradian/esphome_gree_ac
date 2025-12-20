@@ -831,10 +831,9 @@ const char* SinclairACCNT::determine_fan_mode()
    // uint8_t fanSpeed1 = (this->serialProcess_.data[protocol::REPORT_FAN_SPD1_BYTE]  & protocol::REPORT_FAN_SPD1_MASK) >> protocol::REPORT_FAN_SPD1_POS;
     //uint8_t fanSpeed2 = (this->serialProcess_.data[protocol::REPORT_FAN_SPD2_BYTE]  & protocol::REPORT_FAN_SPD2_MASK) >> protocol::REPORT_FAN_SPD2_POS;
     bool    fanQuiet  = (this->serialProcess_.data[protocol::REPORT_FAN_QUIET_BYTE] & protocol::REPORT_FAN_QUIET_MASK) != 0;
-    
     bool    fanTurbo  = (this->serialProcess_.data[protocol::REPORT_FAN_TURBO_BYTE] & protocol::REPORT_FAN_TURBO_MASK) != 0;
     uint8_t fan_mode = (this->serialProcess_.data[protocol::REPORT_FAN_SPD2_BYTE] & protocol::REPORT_FAN_MODE_MASK);
-
+/*
     if (fanTurbo)
         return fan_modes::FAN_TURBO;
     else if (fan_mode == 0)
@@ -852,9 +851,9 @@ const char* SinclairACCNT::determine_fan_mode()
         ESP_LOGW(TAG, "Received unknown fan mode");
         return fan_modes::FAN_AUTO;
     }
-    
+
     /* we have extracted all the data, let's do the processing */
-    /*
+    
     if      (fanSpeed1 == 0 && fanSpeed2 == 0 && fanQuiet == false && fanTurbo == false)
     {
         return fan_modes::FAN_AUTO;
@@ -867,18 +866,18 @@ const char* SinclairACCNT::determine_fan_mode()
     {
         return fan_modes::FAN_QUIET;
     }
-    else if (fanSpeed1 == 2 && fanSpeed2 == 2 && fanQuiet == false && fanTurbo == false)
+    /*else if (fanSpeed1 == 2 && fanSpeed2 == 2 && fanQuiet == false && fanTurbo == false)
     {
         return fan_modes::FAN_MEDL;
-    }
+    }*/
     else if (fanSpeed1 == 3 && fanSpeed2 == 2 && fanQuiet == false && fanTurbo == false)
     {
         return fan_modes::FAN_MED;
     }
-    else if (fanSpeed1 == 4 && fanSpeed2 == 3 && fanQuiet == false && fanTurbo == false)
+    /*else if (fanSpeed1 == 4 && fanSpeed2 == 3 && fanQuiet == false && fanTurbo == false)
     {
         return fan_modes::FAN_MEDH;
-    }
+    }*/
     else if (fanSpeed1 == 5 && fanSpeed2 == 3 && fanQuiet == false && fanTurbo == false)
     {
         return fan_modes::FAN_HIGH;
@@ -892,7 +891,6 @@ const char* SinclairACCNT::determine_fan_mode()
         ESP_LOGW(TAG, "Received unknown fan mode");
         return fan_modes::FAN_AUTO;
     }
-    */
 }
 
 std::string SinclairACCNT::determine_vertical_swing()
