@@ -300,9 +300,10 @@ void SinclairACCNT::send_packet()
             fanSpeed2 = 1;
             fanQuiet  = true;
             fanTurbo  = false;
+            packet[protocol::REPORT_FAN_SPD2_BYTE] |= 2;
         } 
         else if (strcmp(custom_fan_mode, fan_modes::FAN_MED) == 0)
-	{
+        {
             fanSpeed1 = 3;
             fanSpeed2 = 2;
             fanQuiet  = false;
@@ -326,9 +327,10 @@ void SinclairACCNT::send_packet()
         }
         else
         {
-            fanSpeed1 = 0;
-            fanSpeed2 = 0;
-            fanQuiet  = false;
+            // Default to Quiet
+            fanSpeed1 = 1;
+            fanSpeed2 = 1;
+            fanQuiet  = true;
             fanTurbo  = false;
         }
     }
@@ -843,6 +845,8 @@ const char* SinclairACCNT::determine_fan_mode()
         return fan_modes::FAN_MED;
     else if (fan_mode == 3)
         return fan_modes::FAN_HIGH;
+    else if (fanQuiet == true)
+        return fan_modes::FAN_QUIET;
     else 
     {
         ESP_LOGW(TAG, "Received unknown fan mode");
