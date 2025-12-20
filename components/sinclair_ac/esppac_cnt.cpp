@@ -888,7 +888,7 @@ const char* SinclairACCNT::determine_fan_mode()
     }
     else 
     {
-        ESP_LOGW(TAG, "Received unknown fan mode");
+        ESP_LOGW(TAG, "Received unknown fan mode: S1=%d S2=%d Q=%d T=%d", fanSpeed1, fanSpeed2, fanQuiet, fanTurbo);
         return fan_modes::FAN_AUTO;
     }
 }
