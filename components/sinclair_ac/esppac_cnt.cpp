@@ -118,6 +118,7 @@ void SinclairACCNT::control(const climate::ClimateCall &call)
         ESP_LOGV(TAG, "Requested target teperature change");
         this->update_ = ACUpdate::UpdateStart;
         this->target_temperature = *call.get_target_temperature();
+        ESP_LOGD(TAG, "New target temperature: %.1f", this->target_temperature);
         if (this->target_temperature < MIN_TEMPERATURE)
         {
             this->target_temperature = MIN_TEMPERATURE;
