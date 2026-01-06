@@ -299,6 +299,7 @@ void SinclairACCNT::send_packet()
             fanQuiet  = true;
             fanTurbo  = false;
         }
+        /*
         else if (strcmp(custom_fan_mode, fan_modes::FAN_MEDL) == 0)
         {
             fanSpeed1 = 2;
@@ -306,6 +307,7 @@ void SinclairACCNT::send_packet()
             fanQuiet  = false;
             fanTurbo  = false;
         }
+        */
         else if (strcmp(custom_fan_mode, fan_modes::FAN_MED) == 0)
         {
             fanSpeed1 = 3;
@@ -313,6 +315,7 @@ void SinclairACCNT::send_packet()
             fanQuiet  = false;
             fanTurbo  = false;
         }
+        /*
         else if (strcmp(custom_fan_mode, fan_modes::FAN_MEDH) == 0)
         {
             fanSpeed1 = 4;
@@ -320,6 +323,7 @@ void SinclairACCNT::send_packet()
             fanQuiet  = false;
             fanTurbo  = false;
         }
+        */
         else if (strcmp(custom_fan_mode, fan_modes::FAN_HIGH) == 0)
         {
             fanSpeed1 = 5;
@@ -353,7 +357,7 @@ void SinclairACCNT::send_packet()
     {
         packet[protocol::REPORT_FAN_QUIET_BYTE] |= protocol::REPORT_FAN_QUIET_MASK;
     }
-    
+
     /* VERTICAL SWING --------------------------------------------------------------------------- */
     uint8_t mode_vertical_swing = protocol::REPORT_VSWING_OFF;
     if (this->vertical_swing_state_ == vertical_swing_options::OFF)
