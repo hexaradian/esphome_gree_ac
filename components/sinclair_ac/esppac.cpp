@@ -2,7 +2,6 @@
 #include "esppac.h"
 
 #include "esphome/core/log.h"
-#include <cmath>
 
 namespace esphome {
 namespace sinclair_ac {
@@ -24,8 +23,8 @@ climate::ClimateTraits SinclairAC::traits()
     traits.set_supported_modes({climate::CLIMATE_MODE_OFF, climate::CLIMATE_MODE_AUTO, climate::CLIMATE_MODE_COOL,
                                 climate::CLIMATE_MODE_HEAT, climate::CLIMATE_MODE_FAN_ONLY, climate::CLIMATE_MODE_DRY});
 
-    traits.set_supported_custom_fan_modes({fan_modes::FAN_AUTO, fan_modes::FAN_QUIET, fan_modes::FAN_LOW,
-                                           fan_modes::FAN_MED, fan_modes::FAN_HIGH, fan_modes::FAN_TURBO});
+    traits.set_supported_custom_fan_modes({fan_modes::FAN_AUTO, fan_modes::FAN_LOW,
+                                           fan_modes::FAN_MED, fan_modes::FAN_HIGH, fan_modes::FAN_TURBO, fan_modes::FAN_QUIET});
 
     traits.set_supported_swing_modes({climate::CLIMATE_SWING_OFF, climate::CLIMATE_SWING_BOTH,
                                       climate::CLIMATE_SWING_VERTICAL, climate::CLIMATE_SWING_HORIZONTAL});
@@ -39,7 +38,7 @@ void SinclairAC::setup()
     this->init_time_ = millis();
     this->last_packet_sent_ = millis();
 
-        ESP_LOGI(TAG, "Sinclair AC component v%s starting...", VERSION);
+    ESP_LOGI(TAG, "Sinclair AC component v%s starting...", VERSION);
 }
 
 void SinclairAC::loop()
@@ -253,21 +252,11 @@ climate::ClimateAction SinclairAC::determine_action()
 void SinclairAC::set_current_temperature_sensor(sensor::Sensor *current_temperature_sensor)
 {
     this->current_temperature_sensor_ = current_temperature_sensor;
-    if (this->current_temperature_sensor_ == nullptr)
-        return;
-
-    // If the sensor already has a valid value, use it immediately
-    float s = this->current_temperature_sensor_->state;
-    if (!std::isnan(s)) {
-        this->update_current_temperature(s);
-        this->publish_state();
-    }
-
-    // Update the climate when the external sensor state changes
-    this->current_temperature_sensor_->add_on_state_callback([this](float state) {
-        this->update_current_temperature(state);
-        this->publish_state();
-    });
+    this->current_temperature_sensor_->add_on_state_callback([this](float state)
+        {
+            this->current_temperature = state;
+            this->publish_state();
+        });
 }
 
 void SinclairAC::set_vertical_swing_select(select::Select *vertical_swing_select)
