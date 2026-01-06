@@ -17,7 +17,7 @@ esp32:
 # Enable Home Assistant API
 api:
   encryption:
-    key: "QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUE="
+    key: "[insert yours]"
 
 ota:
   - platform: esphome
@@ -57,6 +57,11 @@ uart:
 time:
   - platform: sntp
 
+sensor:
+  - platform: homeassistant
+    id: tempsensor
+    entity_id: "[insert yours]"
+    
 external_components:
   - source: github://hexaradian/esphome_gree_ac
     components: [sinclair_ac]
@@ -64,7 +69,6 @@ external_components:
 
 climate:
   - platform: sinclair_ac
-    current_temperature_sensor: ext_room_temp
     name: ${devicename}
     horizontal_swing_select:
       name: ${devicename} Horizontal Swing Mode
@@ -75,15 +79,14 @@ climate:
     display_unit_select:
       name: ${devicename} Display Unit
     plasma_switch:
-      name: ${devicename} Plasma
-    # My Unit does not like the beeper command
-    #beeper_switch:
-    #  name: ${devicename} Beeper     
+      name: ${devicename} Plasma   
     sleep_switch:
       name: ${devicename} Sleep
     xfan_switch:
       name: ${devicename} X-fan
     save_switch:
-      name: ${devicename} Save/8 Heat  
-    current_temperature_sensor: ext_room_temp
-    
+      name: ${devicename} Save/8 Heat
+    beeper_switch:
+      name: ${devicename} Beeper
+    current_temperature_sensor:
+      tempsensor
