@@ -270,7 +270,7 @@ void SinclairACCNT::send_packet()
 
     /* FAN SPEED --------------------------------------------------------------------------- */
     /* below will default to AUTO */
-    uint8_t fanSpeed1 = 0;
+        uint8_t fanSpeed1 = 0;
     uint8_t fanSpeed2 = 0;
     bool    fanQuiet  = false;
     bool    fanTurbo  = false;
@@ -291,24 +291,34 @@ void SinclairACCNT::send_packet()
             fanSpeed2 = 1;
             fanQuiet  = false;
             fanTurbo  = false;
-            packet[protocol::REPORT_FAN_SPD2_BYTE] |= 1;
         }
-        /* enabled for testing */
         else if (strcmp(custom_fan_mode, fan_modes::FAN_QUIET) == 0)
         {
             fanSpeed1 = 1;
             fanSpeed2 = 1;
             fanQuiet  = true;
             fanTurbo  = false;
-            packet[protocol::REPORT_FAN_SPD1_BYTE] |= 1;
-        } 
+        }
+        else if (strcmp(custom_fan_mode, fan_modes::FAN_MEDL) == 0)
+        {
+            fanSpeed1 = 2;
+            fanSpeed2 = 2;
+            fanQuiet  = false;
+            fanTurbo  = false;
+        }
         else if (strcmp(custom_fan_mode, fan_modes::FAN_MED) == 0)
         {
             fanSpeed1 = 3;
             fanSpeed2 = 2;
             fanQuiet  = false;
             fanTurbo  = false;
-	    packet[protocol::REPORT_FAN_SPD2_BYTE] |= 2;
+        }
+        else if (strcmp(custom_fan_mode, fan_modes::FAN_MEDH) == 0)
+        {
+            fanSpeed1 = 4;
+            fanSpeed2 = 3;
+            fanQuiet  = false;
+            fanTurbo  = false;
         }
         else if (strcmp(custom_fan_mode, fan_modes::FAN_HIGH) == 0)
         {
@@ -316,7 +326,6 @@ void SinclairACCNT::send_packet()
             fanSpeed2 = 3;
             fanQuiet  = false;
             fanTurbo  = false;
-	    packet[protocol::REPORT_FAN_SPD2_BYTE] |= 3;
         }
         else if (strcmp(custom_fan_mode, fan_modes::FAN_TURBO) == 0)
         {
@@ -327,7 +336,6 @@ void SinclairACCNT::send_packet()
         }
         else
         {
-            // Default to Auto
             fanSpeed1 = 0;
             fanSpeed2 = 0;
             fanQuiet  = false;
@@ -337,9 +345,6 @@ void SinclairACCNT::send_packet()
 
     packet[protocol::REPORT_FAN_SPD1_BYTE] |= (fanSpeed1 << protocol::REPORT_FAN_SPD1_POS);
     packet[protocol::REPORT_FAN_SPD2_BYTE] |= (fanSpeed2 << protocol::REPORT_FAN_SPD2_POS);
-    
-   
-    
     if (fanTurbo)
     {
         packet[protocol::REPORT_FAN_TURBO_BYTE] |= protocol::REPORT_FAN_TURBO_MASK;
@@ -348,7 +353,7 @@ void SinclairACCNT::send_packet()
     {
         packet[protocol::REPORT_FAN_QUIET_BYTE] |= protocol::REPORT_FAN_QUIET_MASK;
     }
-
+    
     /* VERTICAL SWING --------------------------------------------------------------------------- */
     uint8_t mode_vertical_swing = protocol::REPORT_VSWING_OFF;
     if (this->vertical_swing_state_ == vertical_swing_options::OFF)
