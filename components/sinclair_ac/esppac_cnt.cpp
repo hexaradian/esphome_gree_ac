@@ -300,7 +300,7 @@ void SinclairACCNT::send_packet()
             fanSpeed2 = 1;
             fanQuiet  = true;
             fanTurbo  = false;
-            packet[protocol::REPORT_FAN_SPD2_BYTE] |= 5;
+            packet[protocol::REPORT_FAN_SPD2_BYTE] |= 4;
         } 
         else if (strcmp(custom_fan_mode, fan_modes::FAN_MED) == 0)
         {
