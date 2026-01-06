@@ -300,6 +300,7 @@ void SinclairACCNT::send_packet()
             fanSpeed2 = 1;
             fanQuiet  = true;
             fanTurbo  = false;
+            packet[protocol::REPORT_FAN_SPD2_BYTE] |= 5;
         } 
         else if (strcmp(custom_fan_mode, fan_modes::FAN_MED) == 0)
         {
@@ -646,8 +647,8 @@ void SinclairACCNT::handle_packet()
 
         for (int i = 4; i < 6; i++)
         {
-            //ESP_LOGV(TAG, "Stamp1: %lx", lastpacket[i]);
-            //ESP_LOGV(TAG, "Stamp1: %lx", this->serialProcess_.data[i]);
+            ESP_LOGV(TAG, "Stamp1: %lx", lastpacket[i]);
+            ESP_LOGV(TAG, "Stamp1: %lx", this->serialProcess_.data[i]);
              if (lastpacket[i] != this->serialProcess_.data[i])
                  newdata = true;
         }
@@ -658,8 +659,8 @@ void SinclairACCNT::handle_packet()
         
         for (int i = 8; i < 11; i++)
         {
-            //ESP_LOGV(TAG, "Stamp1: %lx", lastpacket[i]);
-            //ESP_LOGV(TAG, "Stamp1: %lx", this->serialProcess_.data[i]);
+            ESP_LOGV(TAG, "Stamp1: %lx", lastpacket[i]);
+            ESP_LOGV(TAG, "Stamp1: %lx", this->serialProcess_.data[i]);
              if (lastpacket[i] != this->serialProcess_.data[i])
                  newdata = true;
         }
