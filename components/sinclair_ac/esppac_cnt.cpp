@@ -853,24 +853,10 @@ const char* SinclairACCNT::determine_fan_mode()
             fanQuiet  = true;
             fanTurbo  = false;
         }
-        else if (strcmp(custom_fan_mode, fan_modes::FAN_MEDL) == 0)
-        {
-            fanSpeed1 = 2;
-            fanSpeed2 = 2;
-            fanQuiet  = false;
-            fanTurbo  = false;
-        }
         else if (strcmp(custom_fan_mode, fan_modes::FAN_MED) == 0)
         {
             fanSpeed1 = 3;
             fanSpeed2 = 2;
-            fanQuiet  = false;
-            fanTurbo  = false;
-        }
-        else if (strcmp(custom_fan_mode, fan_modes::FAN_MEDH) == 0)
-        {
-            fanSpeed1 = 4;
-            fanSpeed2 = 3;
             fanQuiet  = false;
             fanTurbo  = false;
         }
