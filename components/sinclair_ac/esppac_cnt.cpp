@@ -270,7 +270,7 @@ void SinclairACCNT::send_packet()
 
     /* FAN SPEED --------------------------------------------------------------------------- */
     /* below will default to AUTO */
-        uint8_t fanSpeed1 = 0;
+    uint8_t fanSpeed1 = 0;
     uint8_t fanSpeed2 = 0;
     bool    fanQuiet  = false;
     bool    fanTurbo  = false;
@@ -291,45 +291,31 @@ void SinclairACCNT::send_packet()
             fanSpeed2 = 1;
             fanQuiet  = false;
             fanTurbo  = false;
+            packet[protocol::REPORT_FAN_SPD2_BYTE] |= 1;
         }
-        else if (strcmp(custom_fan_mode, fan_modes::FAN_QUIET) == 0)
+/       else if (strcmp(custom_fan_mode, fan_modes::FAN_QUIET) == 0)
         {
             fanSpeed1 = 1;
             fanSpeed2 = 1;
             fanQuiet  = true;
             fanTurbo  = false;
-        }
-        /*
-        else if (strcmp(custom_fan_mode, fan_modes::FAN_MEDL) == 0)
-        {
-            fanSpeed1 = 2;
-            fanSpeed2 = 2;
-            fanQuiet  = false;
-            fanTurbo  = false;
-        }
-        */
+            packet[protocol::REPORT_FAN_SPD2_BYTE] |= 5;
+        } 
         else if (strcmp(custom_fan_mode, fan_modes::FAN_MED) == 0)
-        {
+	{
             fanSpeed1 = 3;
             fanSpeed2 = 2;
             fanQuiet  = false;
             fanTurbo  = false;
+	    packet[protocol::REPORT_FAN_SPD2_BYTE] |= 2;
         }
-        /*
-        else if (strcmp(custom_fan_mode, fan_modes::FAN_MEDH) == 0)
-        {
-            fanSpeed1 = 4;
-            fanSpeed2 = 3;
-            fanQuiet  = false;
-            fanTurbo  = false;
-        }
-        */
         else if (strcmp(custom_fan_mode, fan_modes::FAN_HIGH) == 0)
         {
             fanSpeed1 = 5;
             fanSpeed2 = 3;
             fanQuiet  = false;
             fanTurbo  = false;
+	    packet[protocol::REPORT_FAN_SPD2_BYTE] |= 3;
         }
         else if (strcmp(custom_fan_mode, fan_modes::FAN_TURBO) == 0)
         {
@@ -349,6 +335,9 @@ void SinclairACCNT::send_packet()
 
     packet[protocol::REPORT_FAN_SPD1_BYTE] |= (fanSpeed1 << protocol::REPORT_FAN_SPD1_POS);
     packet[protocol::REPORT_FAN_SPD2_BYTE] |= (fanSpeed2 << protocol::REPORT_FAN_SPD2_POS);
+    
+   
+    
     if (fanTurbo)
     {
         packet[protocol::REPORT_FAN_TURBO_BYTE] |= protocol::REPORT_FAN_TURBO_MASK;
