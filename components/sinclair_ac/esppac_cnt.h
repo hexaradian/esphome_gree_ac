@@ -55,8 +55,6 @@ namespace protocol {
     static const uint8_t REPORT_FAN_TURBO_BYTE = 6;
     static const uint8_t REPORT_FAN_TURBO_MASK = 0b00000001;
 
-    static const uint8_t REPORT_FAN_MODE_MASK = 0b00000011;
-
     static const uint8_t REPORT_TEMP_SET_BYTE  = 5;
     static const uint8_t REPORT_TEMP_SET_MASK  = 0b11110000;
     static const uint8_t REPORT_TEMP_SET_POS   = 4;
@@ -106,7 +104,6 @@ namespace protocol {
     static const uint8_t REPORT_DISP_MODE_OUT      = 3;
 
     static const uint8_t REPORT_DISP_F_BYTE    = 7;
-    static const uint8_t TEMREC_MASK           = 0b01000000;
     static const uint8_t REPORT_DISP_F_MASK    = 0b10000000;
 
     static const uint8_t REPORT_PLASMA1_BYTE   = 6;
@@ -123,7 +120,7 @@ namespace protocol {
     static const uint8_t REPORT_SAVE_BYTE      = 11;
     static const uint8_t REPORT_SAVE_MASK      = 0b01000000;
 
-    static const uint8_t REPORT_BEEPER_BYTE    = 40;
+     static const uint8_t REPORT_BEEPER_BYTE    = 40;
     static const uint8_t REPORT_BEEPER_MASK    = 0b00000001;
 
     /* SET packet shares all the byte definition with REPORT */
@@ -165,6 +162,7 @@ class SinclairACCNT : public SinclairAC {
         void on_xfan_change(bool xfan) override;
         void on_save_change(bool save) override;
 
+
         void setup() override;
         void loop() override;
 
@@ -181,10 +179,6 @@ class SinclairACCNT : public SinclairAC {
         bool processUnitReport();
 
         void send_packet();
-
-        bool reqmodechange = false;
-        unsigned char lastpacket[60];
-        unsigned char lastroomtemp;
 
         bool verify_packet();
         void handle_packet();

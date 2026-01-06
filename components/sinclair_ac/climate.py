@@ -1,4 +1,5 @@
 #based on: https://github.com/DomiStyle/esphome-panasonic-ac
+
 from esphome.const import (
     CONF_ID,
 )
@@ -90,8 +91,8 @@ SCHEMA = climate.climate_schema(climate.Climate).extend(
         cv.Optional(CONF_DISPLAY_SELECT): select_schema,
         cv.Optional(CONF_DISPLAY_UNIT_SELECT): select_schema,
         cv.Optional(CONF_PLASMA_SWITCH): switch_schema,
-        cv.Optional(CONF_BEEPER_SWITCH): switch_schema,
         cv.Optional(CONF_SLEEP_SWITCH): switch_schema,
+        cv.Optional(CONF_BEEPER_SWITCH): switch_schema,
         cv.Optional(CONF_XFAN_SWITCH): switch_schema,
         cv.Optional(CONF_SAVE_SWITCH): switch_schema,
     }
@@ -112,7 +113,7 @@ async def to_code(config):
     await climate.register_climate(var, config)
     await cg.register_component(var, config)
     await uart.register_uart_device(var, config)
-    
+
     if CONF_HORIZONTAL_SWING_SELECT in config:
         conf = config[CONF_HORIZONTAL_SWING_SELECT]
         hswing_select = await select.new_select(conf, options=HORIZONTAL_SWING_OPTIONS)

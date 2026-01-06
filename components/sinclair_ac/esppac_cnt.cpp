@@ -10,40 +10,8 @@ static const char *const TAG = "sinclair_ac.serial";
 void SinclairACCNT::setup()
 {
     SinclairAC::setup();
-    ESP_LOGD(TAG, "Using serial protocol for Sinclair AC");
-    Temrec0[0] = 15.5555555555556;
-    Temrec0[1] = 16.6666666666667;
-    Temrec0[2] = 17.7777777778;
-    Temrec0[3] = 18.8888888889;
-    Temrec0[4] = 20;
-    Temrec0[5] = 20.5555555556;
-    Temrec0[6] = 21.6666666667;
-    Temrec0[7] = 22.7777777778;
-    Temrec0[8] = 23.8888888889;
-    Temrec0[9] = 25;
-    Temrec0[10] =25.5555555556;
-    Temrec0[11] = 26.6666666667;
-    Temrec0[12] = 27.7777777778;
-    Temrec0[13] = 28.8888888889;
-    Temrec0[14] = 30;
-    Temrec0[15] = 30.5555555556;
 
-    Temrec1[0] = 16.1111111111111;
-    Temrec1[1] = 17.2222222222222;
-    Temrec1[2] = 18.3333333333333;
-    Temrec1[3] = 19.4444444444444;
-    Temrec1[4] = 0; //Can'thappen
-    Temrec1[5] = 21.1111111111;
-    Temrec1[6] = 22.2222222222222;
-    Temrec1[7] = 23.3333333333;
-    Temrec1[8] = 24.4444444444;
-    Temrec1[9] = 0; //Can't happen
-    Temrec1[10] = 26.1111111111111; 
-    Temrec1[11] = 27.2222222222222;
-    Temrec1[12] = 28.3333333333;
-    Temrec1[13] = 29.4444444444;
-    Temrec1[14] = 0; //Can't happen
-    Temrec1[15] = 31.1111111111111;
+    ESP_LOGD(TAG, "Using serial protocol for Sinclair AC");
 }
 
 void SinclairACCNT::loop()
@@ -108,7 +76,6 @@ void SinclairACCNT::control(const climate::ClimateCall &call)
     if (call.get_mode().has_value())
     {
         ESP_LOGV(TAG, "Requested mode change");
-        reqmodechange = true;
         this->update_ = ACUpdate::UpdateStart;
         this->mode = *call.get_mode();
     }
@@ -131,7 +98,6 @@ void SinclairACCNT::control(const climate::ClimateCall &call)
     if (call.has_custom_fan_mode())
     {
         ESP_LOGV(TAG, "Requested fan mode change");
-        reqmodechange = true;
         this->update_ = ACUpdate::UpdateStart;
         this->set_custom_fan_mode_(call.get_custom_fan_mode());
     }
@@ -139,7 +105,6 @@ void SinclairACCNT::control(const climate::ClimateCall &call)
     if (call.get_swing_mode().has_value())
     {
         ESP_LOGV(TAG, "Requested swing mode change");
-        reqmodechange = true;
         this->update_ = ACUpdate::UpdateStart;
         switch (*call.get_swing_mode()) {
             case climate::CLIMATE_SWING_BOTH:
@@ -174,11 +139,12 @@ void SinclairACCNT::control(const climate::ClimateCall &call)
 /*
  * Send a raw packet, as is
  */
+
 void SinclairACCNT::send_packet()
 {
     std::vector<uint8_t> packet(protocol::SET_PACKET_LEN, 0);  /* Initialize packet contents */
 
-    if (this->wait_response_ == true || (millis() - this->last_packet_sent_ < protocol::TIME_REFRESH_PERIOD_MS))
+    if (this->wait_response_ == true && (millis() - this->last_packet_sent_) < protocol::TIME_REFRESH_PERIOD_MS)
     {
         /* do net send packet too often or when we are waiting for report to come */
         return;
@@ -259,14 +225,8 @@ void SinclairACCNT::send_packet()
     }
 
     /* TARGET TEMPERATURE --------------------------------------------------------------------------- */
-    uint8_t temptemp = static_cast<uint8_t>(round(this->target_temperature));
-    uint8_t target_temperature = ((temptemp - protocol::REPORT_TEMP_SET_OFF) << protocol::REPORT_TEMP_SET_POS);
+    uint8_t target_temperature = ((((uint8_t)this->target_temperature) - protocol::REPORT_TEMP_SET_OFF) << protocol::REPORT_TEMP_SET_POS);
     packet[protocol::REPORT_TEMP_SET_BYTE] |= (target_temperature & protocol::REPORT_TEMP_SET_MASK);
-
-    if (this->target_temperature - (float)temptemp > 0)
-    {
-         packet[protocol::REPORT_DISP_F_BYTE] |= protocol::TEMREC_MASK;
-    }
 
     /* FAN SPEED --------------------------------------------------------------------------- */
     /* below will default to AUTO */
@@ -291,22 +251,34 @@ void SinclairACCNT::send_packet()
             fanSpeed2 = 1;
             fanQuiet  = false;
             fanTurbo  = false;
-            packet[protocol::REPORT_FAN_SPD2_BYTE] |= 1;
         }
-/*        else if (strcmp(custom_fan_mode, fan_modes::FAN_QUIET) == 0)
+        else if (strcmp(custom_fan_mode, fan_modes::FAN_QUIET) == 0)
         {
             fanSpeed1 = 1;
             fanSpeed2 = 1;
             fanQuiet  = true;
             fanTurbo  = false;
-        } */
+        }
+        else if (strcmp(custom_fan_mode, fan_modes::FAN_MEDL) == 0)
+        {
+            fanSpeed1 = 2;
+            fanSpeed2 = 2;
+            fanQuiet  = false;
+            fanTurbo  = false;
+        }
         else if (strcmp(custom_fan_mode, fan_modes::FAN_MED) == 0)
-	{
+        {
             fanSpeed1 = 3;
             fanSpeed2 = 2;
             fanQuiet  = false;
             fanTurbo  = false;
-	    packet[protocol::REPORT_FAN_SPD2_BYTE] |= 2;
+        }
+        else if (strcmp(custom_fan_mode, fan_modes::FAN_MEDH) == 0)
+        {
+            fanSpeed1 = 4;
+            fanSpeed2 = 3;
+            fanQuiet  = false;
+            fanTurbo  = false;
         }
         else if (strcmp(custom_fan_mode, fan_modes::FAN_HIGH) == 0)
         {
@@ -314,7 +286,6 @@ void SinclairACCNT::send_packet()
             fanSpeed2 = 3;
             fanQuiet  = false;
             fanTurbo  = false;
-	    packet[protocol::REPORT_FAN_SPD2_BYTE] |= 3;
         }
         else if (strcmp(custom_fan_mode, fan_modes::FAN_TURBO) == 0)
         {
@@ -332,11 +303,8 @@ void SinclairACCNT::send_packet()
         }
     }
 
-    // packet[protocol::REPORT_FAN_SPD1_BYTE] |= (fanSpeed1 << protocol::REPORT_FAN_SPD1_POS);
-    // packet[protocol::REPORT_FAN_SPD2_BYTE] |= (fanSpeed2 << protocol::REPORT_FAN_SPD2_POS);
-    
-   
-    
+    packet[protocol::REPORT_FAN_SPD1_BYTE] |= (fanSpeed1 << protocol::REPORT_FAN_SPD1_POS);
+    packet[protocol::REPORT_FAN_SPD2_BYTE] |= (fanSpeed2 << protocol::REPORT_FAN_SPD2_POS);
     if (fanTurbo)
     {
         packet[protocol::REPORT_FAN_TURBO_BYTE] |= protocol::REPORT_FAN_TURBO_MASK;
@@ -516,7 +484,6 @@ void SinclairACCNT::send_packet()
     {
         packet[protocol::REPORT_BEEPER_BYTE] |= protocol::REPORT_BEEPER_MASK;
     }
-
     /* SLEEP --------------------------------------------------------------------------- */
     if (this->sleep_state_)
     {
@@ -534,13 +501,8 @@ void SinclairACCNT::send_packet()
     {
         packet[protocol::REPORT_SAVE_BYTE] |= protocol::REPORT_SAVE_MASK;
     }
-
-    /* Do the command, length */
-
-
-    for (int i = 0; i < 20; i++)
-         lastpacket[i] = packet[i];
     
+    /* Do the command, length */
     packet.insert(packet.begin(), protocol::CMD_OUT_PARAMS_SET);
     packet.insert(packet.begin(), protocol::SET_PACKET_LEN + 2); /* Add 2 bytes as we added a command and will add checksum */
 
@@ -557,15 +519,11 @@ void SinclairACCNT::send_packet()
     packet.insert(packet.begin(), protocol::SYNC);
     packet.insert(packet.begin(), protocol::SYNC);
 
-    //ESP_LOGV(TAG, "Stamp1: %lx", this->last_packet_sent_);
     this->last_packet_sent_ = millis();  /* Save the time when we sent the last packet */
-    
     this->wait_response_ = true;
     write_array(packet);                 /* Sent the packet by UART */
     log_packet(packet, true);            /* Log uart for debug purposes */
-   
 
-    
     /* update setting state-machine */
     switch(this->update_)
     {
@@ -636,50 +594,12 @@ void SinclairACCNT::handle_packet()
 {
     if (this->serialProcess_.data[3] == protocol::CMD_IN_UNIT_REPORT)
     {
-        bool newdata = false;
-        
         /* here we will remove unnecessary elements - header and checksum */
         this->serialProcess_.data.erase(this->serialProcess_.data.begin(), this->serialProcess_.data.begin() + 4); /* remove header */
         this->serialProcess_.data.pop_back();  /* remove checksum */
-
-        for (int i = 4; i < 6; i++)
-        {
-            //ESP_LOGV(TAG, "Stamp1: %lx", lastpacket[i]);
-            //ESP_LOGV(TAG, "Stamp1: %lx", this->serialProcess_.data[i]);
-             if (lastpacket[i] != this->serialProcess_.data[i])
-                 newdata = true;
-        }
-
-        if (lastroomtemp != this->serialProcess_.data[42])
-            newdata = true;
-        lastroomtemp = this->serialProcess_.data[42];
-        
-        for (int i = 8; i < 11; i++)
-        {
-            //ESP_LOGV(TAG, "Stamp1: %lx", lastpacket[i]);
-            //ESP_LOGV(TAG, "Stamp1: %lx", this->serialProcess_.data[i]);
-             if (lastpacket[i] != this->serialProcess_.data[i])
-                 newdata = true;
-        }
-        
         /* now process the data */
         this->processUnitReport();
-
-        //Only send new data to HA if we did not initiate that ourselves!
-        if (newdata || reqmodechange)
-        {
-            if (reqmodechange)
-                ESP_LOGD(TAG, "reqmodechange true !");
-            else
-                ESP_LOGD(TAG, "reqmodechange false !");
-                
-                
-            ESP_LOGD(TAG, "New packet !");
-            reqmodechange = false;
-            
-            this->publish_state();
-        }
-
+        this->publish_state();
     }
     else 
     {
@@ -709,38 +629,16 @@ bool SinclairACCNT::processUnitReport()
     }
     this->set_custom_fan_mode_(newFanMode);
     
-    //float newTargetTemperature = (float)(((this->serialProcess_.data[protocol::REPORT_TEMP_SET_BYTE] & protocol::REPORT_TEMP_SET_MASK) >> protocol::REPORT_TEMP_SET_POS)
-     //   + protocol::REPORT_TEMP_SET_OFF);
-
-    int Temset = (this->serialProcess_.data[protocol::REPORT_TEMP_SET_BYTE] & protocol::REPORT_TEMP_SET_MASK) >> protocol::REPORT_TEMP_SET_POS;
-    bool Temrec = this->serialProcess_.data[protocol::REPORT_DISP_F_BYTE] & protocol::TEMREC_MASK;
-
-    float newTargetTemperature = 0;
-    
-    if (Temset < 0 || Temset > 15)
-          ESP_LOGW(TAG, "Invalid Temset reived !");
-    else
-    {
-        if (Temrec)
-            newTargetTemperature = Temrec1[Temset];
-        else
-            newTargetTemperature = Temrec0[Temset];
-    }
-
-    if (newTargetTemperature == 0)
-        ESP_LOGW(TAG, "Something went wrong in the temp calcs !");
-    else
-    {
-        if (this->target_temperature != newTargetTemperature) hasChanged = true;
-        this->update_target_temperature(newTargetTemperature);
-    }
+    float newTargetTemperature = (float)(((this->serialProcess_.data[protocol::REPORT_TEMP_SET_BYTE] & protocol::REPORT_TEMP_SET_MASK) >> protocol::REPORT_TEMP_SET_POS)
+        + protocol::REPORT_TEMP_SET_OFF);
+    if (this->target_temperature != newTargetTemperature) hasChanged = true;
+    this->update_target_temperature(newTargetTemperature);
     
     /* if there is no external sensor mapped to represent current temperature we will get data from AC unit */
     if (this->current_temperature_sensor_ == nullptr)
     {
-        float newCurrentTemperature = (float)(this->serialProcess_.data[protocol::REPORT_TEMP_ACT_BYTE] - 40);
-    //    float newCurrentTemperature = (float)(((this->serialProcess_.data[protocol::REPORT_TEMP_ACT_BYTE] & protocol::REPORT_TEMP_ACT_MASK) >> protocol::REPORT_TEMP_ACT_POS)
-     //       - protocol::REPORT_TEMP_ACT_OFF) / protocol::REPORT_TEMP_ACT_DIV;
+        float newCurrentTemperature = (float)(((this->serialProcess_.data[protocol::REPORT_TEMP_ACT_BYTE] & protocol::REPORT_TEMP_ACT_MASK) >> protocol::REPORT_TEMP_ACT_POS)
+            - protocol::REPORT_TEMP_ACT_OFF) / protocol::REPORT_TEMP_ACT_DIV;
         if (this->current_temperature != newCurrentTemperature) hasChanged = true;
         this->update_current_temperature(newCurrentTemperature);
     }
@@ -827,32 +725,8 @@ const char* SinclairACCNT::determine_fan_mode()
     uint8_t fanSpeed1 = (this->serialProcess_.data[protocol::REPORT_FAN_SPD1_BYTE]  & protocol::REPORT_FAN_SPD1_MASK) >> protocol::REPORT_FAN_SPD1_POS;
     uint8_t fanSpeed2 = (this->serialProcess_.data[protocol::REPORT_FAN_SPD2_BYTE]  & protocol::REPORT_FAN_SPD2_MASK) >> protocol::REPORT_FAN_SPD2_POS;
     bool    fanQuiet  = (this->serialProcess_.data[protocol::REPORT_FAN_QUIET_BYTE] & protocol::REPORT_FAN_QUIET_MASK) != 0;
-    
     bool    fanTurbo  = (this->serialProcess_.data[protocol::REPORT_FAN_TURBO_BYTE] & protocol::REPORT_FAN_TURBO_MASK) != 0;
-    uint8_t fan_mode = (this->serialProcess_.data[protocol::REPORT_FAN_SPD2_BYTE] & protocol::REPORT_FAN_MODE_MASK);
-
-    /*
-    if (fanTurbo)
-        return fan_modes::FAN_TURBO;
-    else if (fan_mode == 0)
-        return fan_modes::FAN_AUTO;
-    else if (fan_mode == 1)
-        return fan_modes::FAN_LOW;
-    else if (fan_mode == 2)
-        return fan_modes::FAN_MED;
-    else if (fan_mode == 3)
-        return fan_modes::FAN_HIGH;
-    else if (fanQuiet)
-        return fan_modes::FAN_QUIET;
-    else 
-    {
-        ESP_LOGW(TAG, "Received unknown fan mode");
-        return fan_modes::FAN_AUTO;
-    }
-        */
-    
     /* we have extracted all the data, let's do the processing */
-    
     if      (fanSpeed1 == 0 && fanSpeed2 == 0 && fanQuiet == false && fanTurbo == false)
     {
         return fan_modes::FAN_AUTO;
@@ -865,18 +739,18 @@ const char* SinclairACCNT::determine_fan_mode()
     {
         return fan_modes::FAN_QUIET;
     }
-    /*else if (fanSpeed1 == 2 && fanSpeed2 == 2 && fanQuiet == false && fanTurbo == false)
+    else if (fanSpeed1 == 2 && fanSpeed2 == 2 && fanQuiet == false && fanTurbo == false)
     {
         return fan_modes::FAN_MEDL;
-    }*/
+    }
     else if (fanSpeed1 == 3 && fanSpeed2 == 2 && fanQuiet == false && fanTurbo == false)
     {
         return fan_modes::FAN_MED;
     }
-    /*else if (fanSpeed1 == 4 && fanSpeed2 == 3 && fanQuiet == false && fanTurbo == false)
+    else if (fanSpeed1 == 4 && fanSpeed2 == 3 && fanQuiet == false && fanTurbo == false)
     {
         return fan_modes::FAN_MEDH;
-    }*/
+    }
     else if (fanSpeed1 == 5 && fanSpeed2 == 3 && fanQuiet == false && fanTurbo == false)
     {
         return fan_modes::FAN_HIGH;
@@ -890,7 +764,6 @@ const char* SinclairACCNT::determine_fan_mode()
         ESP_LOGW(TAG, "Received unknown fan mode");
         return fan_modes::FAN_AUTO;
     }
-    
 }
 
 std::string SinclairACCNT::determine_vertical_swing()

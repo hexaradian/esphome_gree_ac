@@ -24,11 +24,13 @@ static const uint8_t TEMPERATURE_THRESHOLD = 100;  // Maximum temperature the AC
 
 namespace fan_modes{
     const char* const FAN_AUTO  = "0 - Auto";
-    const char* const FAN_LOW   = "1 - Low";
-    const char* const FAN_MED   = "2 - Medium";
-    const char* const FAN_HIGH  = "3 - High";
-    const char* const FAN_TURBO = "4 - Turbo";
-    const char* const FAN_QUIET = "5 - Quiet";
+    const char* const FAN_QUIET = "1 - Quiet";
+    const char* const FAN_LOW   = "2 - Low";
+    const char* const FAN_MEDL  = "3 - Medium-Low";
+    const char* const FAN_MED   = "4 - Medium";
+    const char* const FAN_MEDH  = "5 - Medium-High";
+    const char* const FAN_HIGH  = "6 - High";
+    const char* const FAN_TURBO = "7 - Turbo";
 }
 
 /* this must be same as HORIZONTAL_SWING_OPTIONS in climate.py */
@@ -130,20 +132,16 @@ class SinclairAC : public Component, public uart::UARTDevice, public climate::Cl
         std::string display_unit_state_;
 
         bool plasma_state_;
-        bool beeper_state_;
         bool sleep_state_;
+        bool beeper_state_;
         bool xfan_state_;
         bool save_state_;
 
         SerialProcess_t serialProcess_;
 
-        float Temrec0 [16];
-        float Temrec1 [16];
-
         uint32_t init_time_;   // Stores the current time
         // uint32_t last_read_;   // Stores the time at which the last read was done
         uint32_t last_packet_sent_;  // Stores the time at which the last packet was sent
-        uint32_t last_03packet_sent_;  // Stores the time at which the last packet was sent
         uint32_t last_packet_received_;  // Stores the time at which the last packet was received
         bool wait_response_;
 
